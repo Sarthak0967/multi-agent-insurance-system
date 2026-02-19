@@ -14,6 +14,11 @@ def create_research_task(agent, policy_name):
         - Pros and Cons
 
         Output in a structured format.
+        
+        Provide information in concise structured bullet points.
+        Avoid long explanations.
+        Maximum 300–400 words.
+
         """,
         expected_output="""
         A structured insurance research report containing:
