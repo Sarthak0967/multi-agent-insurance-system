@@ -9,7 +9,7 @@ from agents.comparator import create_comparator
 from tasks.research_task import create_research_task
 from tasks.explanation_task import create_explanation_task
 from tasks.comparison_task import create_comparison_task
-from utils.policy_validator import validate_policy, AVAILABLE_POLICIES
+from utils.policy_validator import validate_policy, get_all_policies
 
 
 # ============================================
@@ -39,7 +39,7 @@ def run_single_policy():
     if not validated_policy:
         print("\n❌ Invalid policy name.")
         print("Available policies:")
-        for policy in AVAILABLE_POLICIES:
+        for policy in get_all_policies():
             print(f"- {policy}")
         return
 
@@ -78,9 +78,8 @@ def run_comparison():
     policy_two = validate_policy(policy_two_input)
 
     if not policy_one or not policy_two:
-        print("\n❌ One or both policy names are invalid.")
         print("Available policies:")
-        for policy in AVAILABLE_POLICIES:
+        for policy in get_all_policies():
             print(f"- {policy}")
         return
 
@@ -144,7 +143,7 @@ def main():
 
         elif choice == "3":
             print("\nAvailable Policies:")
-            for policy in AVAILABLE_POLICIES:
+            for policy in get_all_policies():
                 print(f"- {policy}")
 
         elif choice == "4":
