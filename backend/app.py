@@ -4,6 +4,7 @@ import re
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from crewai import Crew, Process
+from fastapi.middleware.cors import CORSMiddleware
 
 # Disable telemetry
 os.environ["CREWAI_DISABLE_TELEMETRY"] = "true"
@@ -19,7 +20,11 @@ from tasks.comparison_task import create_comparison_task
 from utils.policy_validator import validate_policy, get_all_policies
 
 
+
+
 app = FastAPI(title="Multi-Agent Insurance System API")
+
+
 
 
 # ==========================================
