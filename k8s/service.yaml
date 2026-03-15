@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: insurance-api-service
+  namespace: default
+spec:
+  selector:
+    app: insurance-api
+  ports:
+  - protocol: TCP
+    port: 80          # Port exposed inside the cluster
+    targetPort: 8000  # Port your FastAPI app listens on
+    nodePort: 30080   # Port accessible on your Windows machine via minikube ip
+  type: NodePort

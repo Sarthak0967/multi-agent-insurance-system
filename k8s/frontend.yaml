@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: insurance-frontend
+  labels:
+    app: insurance-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: insurance-frontend
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: insurance-frontend
+    spec:
+      containers:
+      - name: insurance-frontend
+        image: insurance-frontend:v1.0
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8501
+        env:
+        - name: BACKEND_URL
+          value: "http://insurance-api-service/api"   # Kubernetes internal DNS
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "250m"
+        readinessProbe:
+          httpGet:
+            path: /_stcore/health
+            port: 8501
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /_stcore/health
+            port: 8501
+          initialDelaySeconds: 20
+          periodSeconds: 15
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: insurance-frontend-service
+  namespace: default
+spec:
+  selector:
+    app: insurance-frontend
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8501
+    nodePort: 30081     # Access on Windows via minikube service command
+  type: NodePort

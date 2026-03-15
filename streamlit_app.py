@@ -1,7 +1,8 @@
 import streamlit as st
 import requests
+import os 
 
-BASE_URL = "http://127.0.0.1:8000/api"
+BASE_URL = os.environ.get("BACKEND_URL", "http://insurance-api-service/api")
 
 st.set_page_config(
     page_title="Multi-Agent Insurance System",

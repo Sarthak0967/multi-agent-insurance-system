@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: insurance-app-config
+  namespace: default
+data:
+  APP_ENV: "production"
+  CREWAI_DISABLE_TELEMETRY: "true"
+  LANGCHAIN_TRACING_V2: "false"

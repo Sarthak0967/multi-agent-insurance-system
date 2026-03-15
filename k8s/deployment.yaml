@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: insurance-api
+  labels:
+    app: insurance-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: insurance-api
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1        # Allows 1 extra Pod during update (3 total temporarily)
+      maxUnavailable: 0  # Zero downtime — no Pod removed until new one is Ready
+  template:
+    metadata:
+      labels:
+        app: insurance-api
+    spec:
+      containers:
+      - name: insurance-api
+        image: insurance-api:v1.0   # Built locally inside Minikube — no registry needed
+        imagePullPolicy: Never      # Critical: tells Kubernetes NOT to pull from internet
+        ports:
+        - containerPort: 8000
+        envFrom:
+        - configMapRef:
+            name: insurance-app-config
+        - secretRef:
+            name: insurance-app-secrets
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        readinessProbe:
+          httpGet:
+            path: /api/system/health
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          failureThreshold: 3
+        livenessProbe:
+          httpGet:
+            path: /api/system/health
+            port: 8000
+          initialDelaySeconds: 20
+          periodSeconds: 15
+          failureThreshold: 3
