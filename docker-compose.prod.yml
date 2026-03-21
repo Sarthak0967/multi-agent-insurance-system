@@ -1,0 +1,49 @@
+version: "3.8"
+
+networks:
+  insurance-network:
+    driver: bridge
+
+services:
+
+  # ── Backend: FastAPI + CrewAI Agents ──────────────────────────
+  insurance-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: insurance-api:latest
+    container_name: insurance-api
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_ENV=production
+      - CREWAI_DISABLE_TELEMETRY=true
+      - LANGCHAIN_TRACING_V2=false
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+    networks:
+      - insurance-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/system/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  # ── Frontend: Streamlit UI ─────────────────────────────────────
+  insurance-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    image: insurance-frontend:latest
+    container_name: insurance-frontend
+    restart: always
+    ports:
+      - "8501:8501"
+    environment:
+      - BACKEND_URL=http://insurance-api:8000/api
+    depends_on:
+      insurance-api:
+        condition: service_healthy
+    networks:
+      - insurance-network

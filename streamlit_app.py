@@ -3,6 +3,8 @@ import requests
 import os 
 
 BASE_URL = os.environ.get("BACKEND_URL", "http://insurance-api-service/api")
+# BASE_URL = "http://backend:8000"
+# BASE_URL = "http://localhost:8000/api"
 
 st.set_page_config(
     page_title="Multi-Agent Insurance System",
