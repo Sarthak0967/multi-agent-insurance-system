@@ -1,1 +1,4 @@
 k8s/secret.yaml
+*.pem
+*.key
+.env
