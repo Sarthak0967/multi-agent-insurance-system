@@ -18,6 +18,12 @@ from tasks.research_task import create_research_task
 from tasks.explanation_task import create_explanation_task
 from tasks.comparison_task import create_comparison_task
 from utils.policy_validator import validate_policy, get_all_policies
+from visualizer.text_generator import generate_text
+from visualizer.prompts import build_text_prompt
+from visualizer.prompts import parse_visual_meta
+from visualizer.image_generator import generate_image
+from visualizer.prompts import build_image_prompt
+from visualizer.overlay_text import overlay_text
 
 
 
@@ -33,11 +39,22 @@ app = FastAPI(title="Multi-Agent Insurance System API")
 
 class ResearchRequest(BaseModel):
     policy_name: str
+    
+class ConceptRequest(BaseModel):
+    concept: str
 
 
 class CompareRequest(BaseModel):
     policy_a: str
     policy_b: str
+    
+class RecommendationRequest(BaseModel):
+    age: int
+    income: int
+    budget: int
+    dependents: int
+    coverage_required: int
+    risk_level: str   # low / medium / high
 
 
 # ==========================================
@@ -170,3 +187,47 @@ def compare_policies(request: CompareRequest):
     comparison_result = comparison_crew.kickoff()
 
     return clean_llm_json(str(comparison_result))
+
+
+@app.post("/api/generate")
+def generate_content(request: ConceptRequest):
+    concept = request.concept.strip()
+
+    if not concept:
+        raise HTTPException(
+            status_code=400,
+            detail="Concept cannot be empty."
+        )
+
+    try:
+        # Step 1 — Generate explanation + visual brief
+        structured_text = generate_text(concept)
+
+        # Step 2 — Parse visual metadata
+        visual_meta = parse_visual_meta(structured_text)
+
+        # Step 3 — Generate base image
+        raw_image = generate_image(concept, structured_text)
+
+        # Step 4 — Overlay explanation text onto image
+        image_base64 = raw_image.split(",")[1]
+
+        final_image = overlay_text(
+            image_base64,
+            structured_text
+        )
+
+        image = f"data:image/png;base64,{final_image}"
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )
+
+    return {
+        "concept": concept,
+        "explanation": structured_text,
+        "visual_meta": visual_meta,
+        "image": image,
+    }

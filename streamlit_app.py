@@ -1,12 +1,15 @@
 import streamlit as st
 import requests
-import os 
+import os
+import re
 
-#Hello this is a change
+# =====================================
+# API Configuration
+# =====================================
 
 BASE_URL = os.environ.get("BACKEND_URL", "http://insurance-api-service/api")
-# BASE_URL = "http://backend:8000"
-# BASE_URL = "http://localhost:8000/api"
+
+
 
 st.set_page_config(
     page_title="Multi-Agent Insurance System",
@@ -21,7 +24,12 @@ st.title("🧠 Multi-Agent Insurance System")
 
 menu = st.sidebar.radio(
     "Navigation",
-    ["Health Check", "Research Policy", "Compare Policies"]
+    [
+        "Health Check",
+        "Research Policy",
+        "Compare Policies",
+        "Concept Visualizer"   # NEW
+    ]
 )
 
 # =====================================
@@ -34,14 +42,15 @@ if menu == "Health Check":
 
     if st.button("Check System Health"):
 
-        response = requests.get(f"{BASE_URL}/system/health")
+        response = requests.get(
+            f"{BASE_URL}/system/health"
+        )
 
         if response.status_code == 200:
             st.success("System is Running")
             st.json(response.json())
         else:
             st.error("Backend not responding")
-
 
 # =====================================
 # Research Policy
@@ -52,7 +61,9 @@ elif menu == "Research Policy":
     st.header("📘 Research Insurance Policy")
 
     try:
-        policies_response = requests.get(f"{BASE_URL}/policies")
+        policies_response = requests.get(
+            f"{BASE_URL}/policies"
+        )
         policies = policies_response.json()
     except:
         policies = []
@@ -66,15 +77,20 @@ elif menu == "Research Policy":
 
         if not selected_policy:
             st.warning("Please select a policy")
+
         else:
+
             with st.spinner("Researching policy..."):
 
                 response = requests.post(
                     f"{BASE_URL}/research",
-                    json={"policy_name": selected_policy}
+                    json={
+                        "policy_name": selected_policy
+                    }
                 )
 
                 if response.status_code == 200:
+
                     data = response.json()
 
                     st.success("Research Completed")
@@ -82,24 +98,41 @@ elif menu == "Research Policy":
                     st.subheader("📄 Policy Overview")
 
                     st.write("### 📝 Simple Explanation")
-                    st.write(data.get("simple_explanation", "N/A"))
+                    st.write(
+                        data.get(
+                            "simple_explanation",
+                            "N/A"
+                        )
+                    )
 
                     st.write("### 👤 Who Should Buy It")
-                    for item in data.get("who_should_buy", []):
+
+                    for item in data.get(
+                        "who_should_buy",
+                        []
+                    ):
                         st.write("•", item)
 
                     st.write("### 🚫 Who Should Avoid It")
-                    for item in data.get("who_should_avoid", []):
+
+                    for item in data.get(
+                        "who_should_avoid",
+                        []
+                    ):
                         st.write("•", item)
 
                     st.write("### ⭐ Key Takeaways")
-                    for item in data.get("key_takeaways", []):
+
+                    for item in data.get(
+                        "key_takeaways",
+                        []
+                    ):
                         st.write("•", item)
 
                 else:
+
                     st.error("Error occurred")
                     st.json(response.json())
-
 
 # =====================================
 # Compare Policies
@@ -110,25 +143,43 @@ elif menu == "Compare Policies":
     st.header("⚖ Compare Two Insurance Policies")
 
     try:
-        policies_response = requests.get(f"{BASE_URL}/policies")
+        policies_response = requests.get(
+            f"{BASE_URL}/policies"
+        )
         policies = policies_response.json()
+
     except:
         policies = []
 
     col1, col2 = st.columns(2)
 
     with col1:
-        policy_a = st.selectbox("Select Policy A", policies)
+
+        policy_a = st.selectbox(
+            "Select Policy A",
+            policies
+        )
 
     with col2:
-        policy_b = st.selectbox("Select Policy B", policies)
+
+        policy_b = st.selectbox(
+            "Select Policy B",
+            policies
+        )
 
     if st.button("Compare Policies"):
 
         if policy_a == policy_b:
-            st.warning("Please select two different policies")
+
+            st.warning(
+                "Please select two different policies"
+            )
+
         else:
-            with st.spinner("Comparing policies..."):
+
+            with st.spinner(
+                "Comparing policies..."
+            ):
 
                 response = requests.post(
                     f"{BASE_URL}/compare",
@@ -139,27 +190,155 @@ elif menu == "Compare Policies":
                 )
 
                 if response.status_code == 200:
+
                     data = response.json()
 
-                    st.success("Comparison Completed")
+                    st.success(
+                        "Comparison Completed"
+                    )
 
-                    # ✅ Recommendation Section
-                    st.subheader("📌 Recommendation")
-                    st.write(data.get("recommendation", "N/A"))
+                    # Recommendation
+                    st.subheader(
+                        "📌 Recommendation"
+                    )
 
-                    # ✅ Detailed Comparison
-                    st.subheader("📊 Detailed Comparison")
+                    st.write(
+                        data.get(
+                            "recommendation",
+                            "N/A"
+                        )
+                    )
 
-                    comparison = data.get("comparison", {})
+                    # Comparison Details
+                    st.subheader(
+                        "📊 Detailed Comparison"
+                    )
+
+                    comparison = data.get(
+                        "comparison",
+                        {}
+                    )
 
                     if comparison:
+
                         for key, value in comparison.items():
-                            title = key.replace("_", " ").title()
-                            st.markdown(f"### {title}")
+
+                            title = key.replace(
+                                "_",
+                                " "
+                            ).title()
+
+                            st.markdown(
+                                f"### {title}"
+                            )
+
                             st.write(value)
+
                     else:
-                        st.write("No comparison data available")
+
+                        st.write(
+                            "No comparison data available"
+                        )
 
                 else:
+
                     st.error("Error occurred")
                     st.json(response.json())
+
+# =====================================
+# NEW FEATURE — Concept Visualizer
+# =====================================
+
+elif menu == "Concept Visualizer":
+
+    st.header(
+        "🎨 Insurance Concept Visualizer"
+    )
+
+    concept = st.text_input(
+        "Enter Insurance Concept",
+        placeholder="e.g. Risk Pooling"
+    )
+
+    if st.button("Generate Visualization"):
+
+        if not concept.strip():
+
+            st.warning(
+                "Please enter a concept"
+            )
+
+        else:
+
+            with st.spinner(
+                "Generating visualization..."
+            ):
+
+                try:
+
+                    response = requests.post(
+                        f"{BASE_URL}/generate",
+                        json={
+                            "concept": concept
+                        },
+                        timeout=180
+                    )
+
+                    if response.status_code == 200:
+
+                        data = response.json()
+
+                        st.success(
+                            "Visualization Ready"
+                        )
+
+                        col1, col2 = st.columns(2)
+
+                        with col1:
+
+                            st.subheader(
+                                "📘 Explanation"
+                            )
+
+                            st.write(
+                                data.get(
+                                    "explanation",
+                                    "No explanation"
+                                )
+                            )
+
+                        with col2:
+
+                            st.subheader(
+                                "🖼 Generated Image"
+                            )
+
+                            st.image(
+                                data.get("image")
+                            )
+
+                    else:
+
+                        st.error(
+                            f"API Error {response.status_code}"
+                        )
+
+                        st.json(
+                            response.json()
+                        )
+
+                except requests.exceptions.ConnectionError:
+
+                    st.error(
+                        "Cannot reach backend"
+                    )
+
+                except requests.exceptions.Timeout:
+
+                    st.error(
+                        "Request timed out"
+                    )
+
+                except Exception as e:
+
+                    st.error(str(e))

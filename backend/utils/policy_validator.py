@@ -16,7 +16,7 @@ def validate_policy(user_input):
     cur = conn.cursor()
 
     cur.execute(
-        "SELECT name FROM policies WHERE LOWER(name) = %s",
+        "SELECT name FROM policiesdetails WHERE LOWER(name) = %s",
         (normalized_input,)
     )
 
@@ -32,7 +32,7 @@ def get_all_policies():
     conn = get_connection()
     cur = conn.cursor()
 
-    cur.execute("SELECT name FROM policies ORDER BY name")
+    cur.execute("SELECT name FROM policiesdetails ORDER BY name")
     policies = [row[0] for row in cur.fetchall()]
 
     cur.close()

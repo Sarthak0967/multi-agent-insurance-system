@@ -3,7 +3,7 @@ version: '3.8'
 services:
 
   backend:
-    image: insurance-ai
+    image: insurance-backend
     container_name: insurance-backend
     ports:
       - "8000:8000"
