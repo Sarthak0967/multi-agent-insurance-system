@@ -5,8 +5,11 @@ from visualizer.prompts import build_text_prompt
 
 load_dotenv()
 
-client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+_api_key = os.getenv("GROQ_API_KEY")
+if not _api_key:
+    raise EnvironmentError("GROQ_API_KEY environment variable is not set")
 
+client = Groq(api_key=_api_key)
 
 def generate_text(concept: str) -> str:
     """
