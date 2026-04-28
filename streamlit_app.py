@@ -7,7 +7,9 @@ import re
 # API Configuration
 # =====================================
 
-BASE_URL = os.environ.get("BACKEND_URL", "http://insurance-api-service/api")
+# BASE_URL = os.environ.get("BACKEND_URL", "http://insurance-api-service/api")
+# BASE_URL = "http://localhost:8000/api"
+BASE_URL = "http://backend:8000/api"
 
 
 
