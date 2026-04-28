@@ -1,16 +1,22 @@
-version: '3.8'
-
 services:
 
   backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
     image: insurance-backend
     container_name: insurance-backend
     ports:
       - "8000:8000"
+    env_file:
+      - ./backend/.env
     networks:
       - app-network
 
   frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
     image: insurance-frontend
     container_name: insurance-frontend
     ports:

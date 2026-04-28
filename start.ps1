@@ -29,11 +29,7 @@ Write-Host "`nBackend API:" -ForegroundColor Yellow
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "minikube service insurance-api-service --url"
 
 Write-Host "Frontend (Streamlit UI):" -ForegroundColor Yellow
-$frontendUrl = minikube service insurance-frontend-service --url
-
-Write-Host $frontendUrl -ForegroundColor Green
-
-Start-Process $frontendUrl
+minikube service insurance-frontend-service --url
 
 Write-Host "`nAll pods:" -ForegroundColor Cyan
 kubectl get pods
